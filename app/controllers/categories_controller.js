@@ -1,7 +1,7 @@
 const express = require('express');
 const CategoriesController = express.Router();
 const { Category } = require('../models/category');
-CategoriesController.get('/',(req,res)=>{
+CategoriesController.get('/', (req,res)=>{
   console.log(Category.find().then(function(categories){
     res.send(categories)
   }).catch(function(err){

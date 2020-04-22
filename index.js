@@ -11,5 +11,5 @@ app.use(bodyParser.json())
 app.use('/', router)
 
 app.listen(port, function() {
-  console.log('listening on port', port); 
+  console.log('listening on port', port);
 })
