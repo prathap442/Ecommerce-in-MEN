@@ -20,11 +20,12 @@ Book.findAll = function(){
 }
 
 Book.findOneById = function(id){
-   bookData.find((book)=>{
-     if(book.id == id){
-       return book
-     }
-   })   
+  let filteredData = bookData.find((book)=>{
+    if(book.id == id){
+      return book 
+    } 
+  })
+  return filteredData;   
 }
 
 module.exports = {
