@@ -68,3 +68,28 @@ module.exports = {
 }
 ```
 
+### Added both the instance and the Class MEthods
+* The class methods can be added by using 
+app/models/category.js
+```
+categorySchema.statics.findAllProductsForCategory = function(category_id){
+  return Product.find({category: category_id})
+}
+```
+
+
+
+* The instance methods can added by using 
+
+app/models/product.js
+```
+productSchema.methods.shortInfo = function(){
+  //this returns the document from the collection
+  console.log(this);
+  return {
+    "_id": this._id,
+    "description": this.description,
+    "special_price": (this.price*(0.9))   
+  } 
+}
+```

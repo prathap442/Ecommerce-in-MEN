@@ -26,6 +26,30 @@ ProductsController.post('/', (req,res)=>{
   })
 })
 
+
+//to get shortInfo about a product
+//localhost:3000/products/:id/shortInfo
+ProductsController.get('/:id/shortInfo',function(req,response){
+  let productId = req.params.id;
+  Product.findById( productId ).then(function(product){
+    response.send(product.shortInfo()); 
+  }).catch(function(err){
+    console.log(err);
+    response.send(err);  
+  })  
+})
+
+//localhost:3000/products/shortInfo
+ProductsController.get('/shortInfo',function(req,response){
+  Product.find( ).then(function(products){
+    response.send(products.map((product) => { return product.shortInfo() } )); 
+  }).catch(function(err){
+    console.log(err);
+    response.send(err);  
+  })  
+})
+    
+
 //localhost:3000/products/:id GET
 ProductsController.get('/:id',(req,res)=>{
   let productId = req.params.id;
@@ -77,6 +101,8 @@ ProductsController.delete('/:id',(req, res)=>{
     res.send(err)  
   })  
 })
+
+
 
 //The time wasting part 
 //that took me time to figure out where the thing went wrong

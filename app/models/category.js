@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const { Product } = require('../models/product');
 const categorySchema = new Schema({
   name:{
    type: String,
@@ -13,7 +14,12 @@ const categorySchema = new Schema({
   }  
 })
 
+categorySchema.statics.findAllProductsForCategory = function(category_id){
+  return Product.find({category: category_id})
+}
+  
 const Category = mongoose.model('Category', categorySchema);
+
 
 module.exports = {
   Category: Category

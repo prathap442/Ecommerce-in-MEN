@@ -38,6 +38,20 @@ CategoriesController.delete('/:id',function(req,res){
     res.send(err);
   })
 })
+
+
+CategoriesController.get('/:id/products',function(req,res){
+  let categoryId = req.params.id;
+  Category.findAllProductsForCategory(categoryId).then(function(products){
+    res.send({"msg": "Sending All the Products for the Category",products})
+  }).catch(function(err){
+    res.send(err);
+  })
+})
+  
+
+
+
 module.exports = {
   CategoriesController: CategoriesController
 }
