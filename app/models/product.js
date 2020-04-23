@@ -3,13 +3,7 @@ const Schema = mongoose.Schema;
 const productSchema = new Schema({
   name: {
     type: String,
-    required: true,
-    validate: {
-      validator: function(name){
-        return name == "prathap" 
-      },
-      msg: "There is failure in the custom validation"
-    }
+    required: true
   },
   description: {
     type: String
