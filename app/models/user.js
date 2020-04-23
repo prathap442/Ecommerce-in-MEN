@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const validatePackage = require('validator');
+const { CartLineItemSchema } = require('../models/cart_line_item');
+const bcrypt = require('bcryptjs');
 const userSchema = new Schema({
   username: {
     type: String,
@@ -24,7 +26,8 @@ const userSchema = new Schema({
         validatePackage.isEmail(value);
       } 
     }
-  }    
+  },
+  cartItems: [ CartLineItemSchema ]    
 });
 
 userSchema.pre('save', function(next){
