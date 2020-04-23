@@ -12,6 +12,7 @@ ProductsController.get('/', (req,res)=>{
   }).catch(function(err){
     res.send(err);
   })
+  Product.findById
 })
 
 //localhost:3000/products POST

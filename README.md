@@ -38,3 +38,33 @@ First ran the command `$ mongo` and then did the following thing
     "daemonize2": "^0.4.2"
   },
 ```
+
+
+
+
+### Adding Custom Validations fieldwise in mongoose Schema 
+
+```
+const mongoose = require('mongoose');
+const schema = mongoose.Schema;
+const productSchema = new schema({
+  name: {
+    type: String,
+    maxLength: 13,
+    minLength: 1,
+    validate: {
+      validator: function(name){
+        return name == "prathap" 
+      },
+      msg: "There is failure in the custom validation"
+    }
+  }  
+})
+
+const Product = mongoose.model('Product',productSchema)
+
+module.exports = {
+  Product
+}
+```
+
