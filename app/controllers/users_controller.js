@@ -12,6 +12,19 @@ UsersController.get('/',function(req,res){
     });
 })
 
+
+//localhost:3000/users/login POST
+UsersController.post('/login',function(req,response){
+  let userEmail = req.body.email;
+  let userPasscode = req.body.password;
+  console.log()
+  User.findByCredentials(userEmail,userPasscode).then(function(user){
+    response.send({"msg": "Successfully Logged In",user})
+  }).catch(function(err){
+    response.send(err);
+  })
+})
+
 UsersController.post('/',function(req,res){ 
   var requestedBody = req.body;
   console.log(requestedBody)
@@ -22,7 +35,7 @@ UsersController.post('/',function(req,res){
       msg: "Successfully created the user"  
     })
   }).catch(function(err){
-    res.send(err);  
+    res.send({msg: "cannot make you login", err});  
   })  
 })
 
@@ -66,6 +79,8 @@ UsersController.put('/:id/cart_line_items',function(req,res){
     res.send({"err": err,"msg": "User doesnot exist"});
   })
 })
+
+
 
 module.exports = {
   UsersController: UsersController    

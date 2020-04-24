@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const shortHash = require('shorthash');
 const Schema = mongoose.Schema;
 const productSchema = new Schema({
   name: {
@@ -10,6 +11,11 @@ const productSchema = new Schema({
   },
   price: {
     type: Number
+  },
+  code: {
+    type: String,
+    unique: true,
+    required: true  
   },
   category: {
     type: Schema.Types.ObjectId,
@@ -27,6 +33,12 @@ productSchema.methods.shortInfo = function(){
   } 
 }
 
+productSchema.pre('validate',function(next){
+  let productObject = this;
+  let shortCode = `DCT-${shortHash.unique(productObject._id.toString())}`;
+  productObject.code = shortCode;
+  next();
+})
 const Product = mongoose.model('Product',productSchema)
 
 module.exports = {

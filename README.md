@@ -93,3 +93,44 @@ productSchema.methods.shortInfo = function(){
   } 
 }
 ```
+
+
+# Importance of Middleware in req,res cycle
+ [Next IN Node](https://www.quora.com/How-important-is-next-in-Node-js)
+
+
+#### Some more Validations
+```
+productSchema.pre('validate', function(next){
+    let product = this
+    let code = shorthash.unique(product._id.toString())
+    product.code = `DCT-${code}`
+    next()
+})
+
+// productSchema.pre('validate', function(next){
+//     console.log('im called before validation')
+//     next()
+// })
+
+// productSchema.post('validate', function(){
+//     console.log('im called after validation')
+// })
+
+// productSchema.pre('save', function(next){
+//     console.log('im called before saving')
+//     next()
+// })
+
+// productSchema.post('save', function(){
+//     console.log('im called after saving')
+// })
+
+```
+
+
+### Working on the Commit of the  UserAuthentication
+- ✓ Taking ShortHash package for the sake of adding the code field to the product documents. This generation of the unique code will happen in the prevalidate callback .
+- ✓ Creating the Custom Method findByCredentials(email, password) which is the static method for the User Model .
+- ✓ Use bcryptjs to generate the hash password and then to save in the database.
+- ✓ /login uri implementation would be agenda of the commit
