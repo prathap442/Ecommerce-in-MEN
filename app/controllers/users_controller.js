@@ -19,11 +19,46 @@ UsersController.post('/login',function(req,response){
   let userPasscode = req.body.password;
   console.log()
   User.findByCredentials(userEmail,userPasscode).then(function(user){
-    response.send({"msg": "Successfully Logged In",user})
+    user.generateToken().then(function(generatedToken){
+      console.log(generatedToken);
+      user.tokens.push({ token: generatedToken })
+      user.save()
+        .then(function(user){
+          response.send({"msg": "generated the token and successfully updated the user record",tokens: user.tokens})
+        })
+        .catch(function(err){
+          response.send({"msg": "Generated the token but not updated the user record"})
+        })
+    })
   }).catch(function(err){
+    console.log("in the catch block");
     response.send(err);
   })
 })
+
+const AuthenticateUser = function(req,res,next){
+  const token = req.header('x-auth');
+  User.findByToken(token).then((user) => {
+    req.user = user 
+    req.token = token
+    next()
+  }).catch((err) => {
+    res.send({
+        notice: err
+    })
+  })
+}
+
+//implemeting authentication for seeing /accounts
+UsersController.post('/accounts', AuthenticateUser ,function(req,response){
+  const user = req.user;
+  User.find().then(function(users){
+    response.send(users)
+  }).catch(function(err){
+    response.send({"err": err,"msg": "Unable to get accounts 401"})
+  })
+})
+
 
 UsersController.post('/',function(req,res){ 
   var requestedBody = req.body;

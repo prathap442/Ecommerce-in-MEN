@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 const validatePackage = require('validator');
 const { CartLineItemSchema } = require('../models/cart_line_item');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const userSchema = new Schema({
   username: {
     type: String,
@@ -27,7 +28,14 @@ const userSchema = new Schema({
       } 
     }
   },
-  cartItems: [ CartLineItemSchema ]    
+  cartItems: [ CartLineItemSchema ],
+  tokens: [
+    {
+      token: {
+         type: String 
+      }
+    }
+  ]    
 });
 
 userSchema.pre('save', function(next){
@@ -57,8 +65,36 @@ userSchema.statics.findByCredentials = function(email,password){
       })  
     })
   }).catch(function(err){  
+    console.log("Hey guys there is no such user");
     return Promise.reject('No such User exists')
   })
+}
+
+userSchema.methods.generateToken = function(){
+  let user = this;
+  let userId = user._id.toString();
+  let privateKey = "DCTACADEMy";
+  let encodedToken = jwt.sign({userId: userId, expiresIn: (Date.now()+10)},privateKey);
+  // return encodedToken
+  // returning promisified Token
+  return Promise.resolve(encodedToken);
+}
+
+userSchema.statics.findByToken = function(token){
+  let User = this 
+  let tokenData 
+  try {
+      tokenData = jwt.verify(token, 'DCTACADEMy')
+  } catch (e) {
+      return Promise.reject(e)
+  }
+  //token data would be some thing of this format
+  //{userId: 1,expiresIn: 2343322}
+  return User.findOne({
+      '_id': tokenData.userId,
+      'tokens.token': token
+  })
+
 }
 
 const User = mongoose.model('User', userSchema);
