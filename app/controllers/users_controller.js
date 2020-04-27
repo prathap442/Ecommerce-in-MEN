@@ -89,7 +89,7 @@ UsersController.put('/cart_line_items', AuthenticateUser, function(req,res){
       let cartLineItem = new CartLineItem();
       cartLineItem.product = req.body.product_id;
       cartLineItem.quantity = req.body.quantity;
-      userFound.cartItems.push({"product": cartLineItem.product, "quantity": cartLineItem.quantity});
+      userFound.cartItems.push(cartLineItem);
       let userUpdateAttributes = {...userFound };
       delete userUpdateAttributes._id;
       User.findOneAndUpdate({ "_id": userId}, {cartItems: userFound.cartItems }).then((result)=>{
@@ -117,7 +117,9 @@ UsersController.delete('/cart_line_items', AuthenticateUser, function(req,res){
     })
     user.cartItems = cartItemsFiltered
     user.save().then(function(updatedUser){
-      res.send({"msg": "Found the USer","cartItems": updatedUser.cartItems})
+      res.send({"msg": "Found the USer",
+                "cartItems": updatedUser.cartItems.product_id
+      })
     }).catch(function(err){
       console.log(err);
       res.send(err); 
