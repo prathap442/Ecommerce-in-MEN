@@ -23,8 +23,8 @@ OrdersController.post('/', AuthenticateUser, function(req, res){
   let order = new Order();
   // ensuring that the current order belongs to the user
   order.user = currentUser._id;
-  order.order_number = `DCT-ORDER-${shortHash.unique("asdfafsf")}`;
-  order.name = `DCT-ORDER-NAME-${shortHash.unique("asdfasfasfasfMath.random())")}`;
+  order.order_number = `DCT-ORDER-${shortHash.unique("asfas")}`;
+  order.name = `DCT-ORDER-NAME-${shortHash.unique("sadfas sdfasdf")}`;
   order.total_amount = 0.0;
   order.save().then(function(order){
       res.send({
