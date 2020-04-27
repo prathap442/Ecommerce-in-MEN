@@ -25,6 +25,7 @@ UsersController.post('/login',function(req,response){
       user.tokens.push({ token: generatedToken })
       user.save()
         .then(function(user){
+          response.setHeader('x-auth',generatedToken)
           response.send({"msg": "generated the token and successfully updated the user record",tokens: user.tokens})
         })
         .catch(function(err){
@@ -61,46 +62,44 @@ UsersController.post('/',function(req,res){
   })  
 })
 
-// PUT users/:id/cart_line_items
+// PUT users/cart_line_items
+/*
+{
+  productId: "212121212121",
+
+}
+*/
 UsersController.put('/cart_line_items', AuthenticateUser, function(req,res){
   let userId = req.user._id;
-  console.log(userId);
-  User.findOne({_id: userId}).then((userFound)=>{
-    let inCartItem;
+  User.findById(userId).then((userFound)=>{
     let userFoundCartItems= userFound.cartItems;
-    let inCartItems = userFoundCartItems.filter(function(cartItem){
-      return String(cartItem.product) == String(req.body.productId)
-    })
-    inCartItem = inCartItems[0];
+    let inCartItem = userFoundCartItems.find(function(cartItem){
+      return String(cartItem.product) == String(req.body.product_id)
+    });
     console.log(inCartItem);
     if(inCartItem){
       inCartItem.quantity = inCartItem.quantity + req.body.quantity
       res.send({"msg": "Update LineItem quantity in cart",userFound })
-      User.findOneAndUpdate({ "_id": userId}, {cartItems: userFoundCartItems })
-        .then((result)=>{
-          res.send({"msg": "Succesfully Added the item to cart","cartLineItem": result})
-        })
-        .catch(function(err){
-          res.send({"msg": "UnSuccesfully Added the item to cart","cartLineItem": err})
-          console.log(err);  
-        })
     }
     else{
       let cartLineItem = new CartLineItem();
       cartLineItem.product = req.body.product_id;
       cartLineItem.quantity = req.body.quantity;
-      userFound.cartItems.push(cartLineItem);
-      let userUpdateAttributes = {...userFound };
-      delete userUpdateAttributes._id;
-      User.findOneAndUpdate({ "_id": userId}, {cartItems: userFound.cartItems }).then((result)=>{
-        res.send({"msg": "Succesfully Added the item to cart","cartLineItem": userFound})
-      }).catch(function(err){
-        res.send({"msg": "UnSuccesfully Added the item to cart","cartLineItem": err})
-        console.log(err);  
-      })
+      userFound.cartItems.push(cartLineItem); 
     }
+    userFound.save().then(function(updatedUser){
+      res.send({
+        "msg": "successfully added a new product to the cart",
+        "user": updatedUser
+      })
+    }).catch(function(err){
+      res.send({
+        "msg": "could not add the new product to the cartLineItem Array by updating the user"
+      })
+    })
   }).catch((err)=>{
     console.log(err);
+    console.log("User does not exist");
     res.send({"err": err,"msg": "User doesnot exist"});
   })
 })

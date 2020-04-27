@@ -18,23 +18,23 @@ OrdersController.get('/', AuthenticateUser, function(req,res){
 })
 
 //POST /orders this is to place the order from the cart of the user
-OrdersController.post('/', AuthenticateUser, function(req,res){
-  let currentUser = req.user;
+OrdersController.post('/', AuthenticateUser, function(req, res){
+  const currentUser = req.user 
   let order = new Order();
+  // ensuring that the current order belongs to the user
   order.user = currentUser._id;
-  order.order_number = `DCT-ORDER-${shortHash.unique(Math.random()).toString()}`;
-  order.name = `DCT-ORDER-NAME-${shortHash.unique(Math.random()).toString()}`;
+  order.order_number = `DCT-ORDER-${shortHash.unique("asdfafsf")}`;
+  order.name = `DCT-ORDER-NAME-${shortHash.unique("asdfasfasfasfMath.random())")}`;
   order.total_amount = 0.0;
   order.save().then(function(order){
-    res.send({
-      "msg": "Order being successfully placed",
-      "order": order
-    })
+      res.send({
+          order: order, 
+          notice: 'successfully created an order'
+      })
   }).catch(function(err){
-    res.send(err);
-  }) 
+      res.send(err)
+  })
 })
-
 
 module.exports = {
   OrdersController

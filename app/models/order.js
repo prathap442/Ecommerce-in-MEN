@@ -37,33 +37,37 @@ const orderSchema = new Schema({
   }
 })
 
-orderSchema.pre('save',function(){
-  let order = this;
+orderSchema.pre('save',function(next){
+  let currentOrder = this;
   let currentUserId = this.user;
   let orderPrice = 0.0;
-  console.log("inside the pre save block");
-  order.total_amount = orderPrice;
+  currentOrder.total_amount = orderPrice;
   User.findById(currentUserId)
     .then(function(userRecord){
-      console.log(userRecord)
-      console.log(userRecord.cartItems.map((cartItem)=>{ console.log(cartItem.product) }))
-      console.log('found the user');
+      console.log(userRecord.cartItems);
       userRecord.cartItems.forEach(function(cartItem){
-        Product.findById(cartItem.product._id).then(function(product){
+        Product.findById(cartItem.product)
+        .then(function(product){
+          console.log("inside the then block ")
+          console.log(`${product}`)
           let orderLineItem = {
-            product: product._id,
-            quantity: product.quantity,
+            product: String(product._id),
+            quantity: cartItem.quantity,
             price: product.price
           }
-          order.total_amount = order.total_amount + (cartItem.product.quantity * cartItem.product.price);
-          order.orderLineItems.push(orderLineItem)
+          currentOrder.total_amount = currentOrder.total_amount + (orderLineItem.quantity * orderLineItem.price);
+          currentOrder.orderLineItems.push(orderLineItem)
+          console.log(currentOrder)
+        })
+        .catch(function(err){
+          console.log(err);
         })  
       })
+      next()
     })
     .catch(function(err){
       console.log(err);
     })
-  next()
 })
 
 const Order = mongoose.model('Order', orderSchema)
