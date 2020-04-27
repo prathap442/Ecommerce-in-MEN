@@ -8,7 +8,9 @@ var bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-app.use('/', router)
+app.get('/checker', function(req,res){
+  res.send({"msg": "You are hitting me...!!"})
+})
 
 app.listen(port, function() {
   console.log('listening on port', port);
