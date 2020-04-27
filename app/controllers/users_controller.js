@@ -3,6 +3,7 @@ const UsersController = express.Router();
 const { User } = require('../models/user');
 const { CartLineItem } = require('../models/cart_line_item');
 const bcrypt = require('bcryptjs');
+const { AuthenticateUser } = require('../middlewares/authentication');
 
 UsersController.get('/',function(req,res){
     User.find().then((users) => {
@@ -31,23 +32,9 @@ UsersController.post('/login',function(req,response){
         })
     })
   }).catch(function(err){
-    console.log("in the catch block");
     response.send(err);
   })
 })
-
-const AuthenticateUser = function(req,res,next){
-  const token = req.header('x-auth');
-  User.findByToken(token).then((user) => {
-    req.user = user 
-    req.token = token
-    next()
-  }).catch((err) => {
-    res.send({
-        notice: err
-    })
-  })
-}
 
 //implemeting authentication for seeing /accounts
 UsersController.post('/accounts', AuthenticateUser ,function(req,response){
@@ -75,47 +62,68 @@ UsersController.post('/',function(req,res){
 })
 
 // PUT users/:id/cart_line_items
-UsersController.put('/:id/cart_line_items',function(req,res){
-  let userId = req.params.id;
-  let cartLineItem = new CartLineItem();
-  cartLineItem.product = req.body.product_id;
-  cartLineItem.quantity = req.body.quantity;
- 
-  User.findById(userId).then((userFound)=>{
+UsersController.put('/cart_line_items', AuthenticateUser, function(req,res){
+  let userId = req.user._id;
+  console.log(userId);
+  User.findOne({_id: userId}).then((userFound)=>{
     let inCartItem;
     let userFoundCartItems= userFound.cartItems;
     let inCartItems = userFoundCartItems.filter(function(cartItem){
-      return String(cartItem.product) == String(cartLineItem.product)
+      return String(cartItem.product) == String(req.body.productId)
     })
     inCartItem = inCartItems[0];
     console.log(inCartItem);
     if(inCartItem){
       inCartItem.quantity = inCartItem.quantity + req.body.quantity
       res.send({"msg": "Update LineItem quantity in cart",userFound })
-      User.findOneAndUpdate({ "_id": userId}, {cartItems: userFoundCartItems }).then((result)=>{
-        res.send({"msg": "Succesfully Added the item to cart","cartLineItem": result})
-      }).catch(function(err){
-        res.send({"msg": "UnSuccesfully Added the item to cart","cartLineItem": err})
-        console.log(err);  
-      })
+      User.findOneAndUpdate({ "_id": userId}, {cartItems: userFoundCartItems })
+        .then((result)=>{
+          res.send({"msg": "Succesfully Added the item to cart","cartLineItem": result})
+        })
+        .catch(function(err){
+          res.send({"msg": "UnSuccesfully Added the item to cart","cartLineItem": err})
+          console.log(err);  
+        })
     }
     else{
+      let cartLineItem = new CartLineItem();
+      cartLineItem.product = req.body.product_id;
+      cartLineItem.quantity = req.body.quantity;
       userFound.cartItems.push({"product": cartLineItem.product, "quantity": cartLineItem.quantity});
       let userUpdateAttributes = {...userFound };
       delete userUpdateAttributes._id;
       User.findOneAndUpdate({ "_id": userId}, {cartItems: userFound.cartItems }).then((result)=>{
-        res.send({"msg": "Succesfully Added the item to cart","cartLineItem": result})
+        res.send({"msg": "Succesfully Added the item to cart","cartLineItem": userFound})
       }).catch(function(err){
         res.send({"msg": "UnSuccesfully Added the item to cart","cartLineItem": err})
         console.log(err);  
       })
     }
   }).catch((err)=>{
+    console.log(err);
     res.send({"err": err,"msg": "User doesnot exist"});
   })
 })
 
 
+//DELETE users/:id/cart_line_items
+UsersController.delete('/cart_line_items', AuthenticateUser, function(req,res){
+  let userId = req.user._id;
+  let productId = req.params.productId;
+  let cartItemsFiltered;
+  User.findOne(userId).then(function(user){
+    cartItemsFiltered = user.cartItems.filter(function(cartItem){
+      return (cartItem._id != productId)
+    })
+    user.cartItems = cartItemsFiltered
+    user.save().then(function(updatedUser){
+      res.send({"msg": "Found the USer","cartItems": updatedUser.cartItems})
+    }).catch(function(err){
+      console.log(err);
+      res.send(err); 
+    })
+  }).catch(err => res.send(err));
+})
 
 module.exports = {
   UsersController: UsersController    

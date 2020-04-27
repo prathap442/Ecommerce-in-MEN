@@ -134,3 +134,25 @@ productSchema.pre('validate', function(next){
 - ✓ Creating the Custom Method findByCredentials(email, password) which is the static method for the User Model .
 - ✓ Use bcryptjs to generate the hash password and then to save in the database.
 - ✓ /login uri implementation would be agenda of the commit
+
+
+### Agenda of the commit
+. ✓ To deal with the AuthenticateUser method in the UsersController to moved to the middlewares 
+- ✓ To drop the database execute the following command
+
+- bookstore is the database name below
+```
+$ mongo bookstore --eval "printjson(db.dropDatabase())"
+```
+
+
+## Agneda of the commit
+- Learnt the populate method how populate does the reference to foreign key and fill the data in the field of the category in the product object .
+
+- To create 5 categories and populate the data for the 5 categories 
+- To create 5 products for every category and then populate them
+- To test weather the things go well
+- To write the order model
+- To write the routes for the order get
+- To write the routes for the order post
+- To finally complete the project

@@ -40,21 +40,28 @@ const userSchema = new Schema({
 
 userSchema.pre('save', function(next){
   let user = this
-  bcrypt.genSalt(10).then(function(salt){
-    bcrypt.hash(user.password, salt).then(function(encrypted){
-      user.password = encrypted 
-      next()
+  if(user.isNew){
+    bcrypt.genSalt(10).then(function(salt){
+      bcrypt.hash(user.password, salt).then(function(encrypted){
+        user.password = encrypted 
+        next()
+      })
     })
-  })
+  }
+  else{
+    next()
+  }
 })
 
 userSchema.statics.findByCredentials = function(email,password){
   let userEmail = email;
   let userGivenPassword = password;
   return User.findOne({email: userEmail}).then(function(user){
+    console.log(userEmail,userGivenPassword,user.password);
     return new Promise(function(resolve,reject){
-      bcrypt.compare(userGivenPassword, user.password, function(err, result) {
+      bcrypt.compare(userGivenPassword, user.password).then(function(result) {
         // result == true
+        console.log(result);
         if(result){
           resolve(user)
         }
@@ -66,6 +73,7 @@ userSchema.statics.findByCredentials = function(email,password){
     })
   }).catch(function(err){  
     console.log("Hey guys there is no such user");
+    console.log(err);
     return Promise.reject('No such User exists')
   })
 }

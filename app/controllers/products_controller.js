@@ -32,7 +32,15 @@ ProductsController.post('/', (req,res)=>{
 ProductsController.get('/:id/shortInfo',function(req,response){
   let productId = req.params.id;
   Product.findById( productId ).then(function(product){
-    response.send(product.shortInfo()); 
+    //populate is the method that is used to fill the data where there are foreign key references .
+    product.populate('category',function(err){
+       if(err){
+        throw err 
+       }
+       else{
+         response.send(product.shortInfo()); 
+       }
+    })
   }).catch(function(err){
     console.log(err);
     response.send(err);  

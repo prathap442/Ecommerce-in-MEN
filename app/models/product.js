@@ -19,7 +19,8 @@ const productSchema = new Schema({
   },
   category: {
     type: Schema.Types.ObjectId,
-    ref: 'Category'
+    ref: 'Category',
+    required: true
   }
 });
 
@@ -29,8 +30,9 @@ productSchema.methods.shortInfo = function(){
   return {
     "_id": this._id,
     "description": this.description,
-    "special_price": (this.price*(0.9))   
-  } 
+    "special_price": (this.price*(0.9)),
+    "category_name": this.category   
+  }
 }
 
 productSchema.pre('validate',function(next){
